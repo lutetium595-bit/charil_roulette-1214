@@ -10,7 +10,17 @@ if(!DATABASE_URL||!ADMIN_PASSWORD||!SESSION_SECRET||SESSION_SECRET.length<32){co
 const pool=new Pool({connectionString:DATABASE_URL,ssl:process.env.DATABASE_SSL==='true'?{rejectUnauthorized:true}:undefined});
 app.disable('x-powered-by');app.set('trust proxy',process.env.TRUST_PROXY==='true'?1:false);
 app.use(express.json({limit:'3mb'}));
-app.use((req,res,next)=>{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','DENY');res.setHeader('Content-Security-Policy',"default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");next()});
+
+app.use((req,res,next)=>{
+ res.setHeader('X-Content-Type-Options','nosniff');
+ res.setHeader('Referrer-Policy','same-origin');
+ res.setHeader('X-Frame-Options','DENY');
+ res.setHeader(
+  'Content-Security-Policy',
+  "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+ );
+ next();
+});
 const hash=v=>crypto.createHmac('sha256',SESSION_SECRET).update(v).digest('hex');
 const cookieName='charil_admin';
 function getToken(req){const m=(req.headers.cookie||'').match(/(?:^|;\s*)charil_admin=([^;]+)/);return m?decodeURIComponent(m[1]):null}
