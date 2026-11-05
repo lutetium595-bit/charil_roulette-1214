@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>챠릴 룰렛 현황</title>
+<style>
+:root{
+  --bg:#eaf7ff;--panel:#ffffff;--soft:#dff1ff;--line:#c4e3f7;
+  --text:#23435e;--sub:#6e95ae;--accent:#62b4e8;--accent2:#a1d8f6;
+  --danger:#c96d79;--shadow:0 12px 30px rgba(53,142,199,.11);
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif}
+body.dark{
+  --bg:#132a3b;--panel:#1b3a51;--soft:#244b66;--line:#3b6680;
+  --text:#f0faff;--sub:#accbde;--accent:#67b9e9;--accent2:#9cdaf6;
+  --shadow:0 14px 35px rgba(0,0,0,.28);
+}
+.icon-btn,.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;cursor:pointer}
+.icon-btn{width:40px;height:40px;font-size:19px}.btn{padding:10px 14px;font-size:13px;font-weight:700}
+.icon-btn:hover,.btn:hover{background:var(--soft)}
+.wrap{max-width:1050px;margin:0 auto;padding:14px 18px 45px}
+.hero{margin-bottom:24px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px}.hero #adminBtn{flex-shrink:0}.hero h1{margin:0;font-size:21px;font-weight:700;line-height:1.35}.hero p{color:var(--sub);margin:8px 0 0;font-size:14px}
+.banner-area{margin:0 0 24px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow)}
+.banner-area[hidden]{display:none}
+.banner-area img{display:block;width:100%;height:auto;aspect-ratio:2320 / 338;object-fit:cover}
+.admin-section-title{font-size:15px;margin:22px 0 6px}.admin-help{font-size:12px;color:var(--sub);line-height:1.5;margin:0 0 12px}.banner-admin{padding:15px;margin-bottom:20px;background:var(--soft);border:1px solid var(--line);border-radius:14px}
+.banner-admin h3{font-size:15px;margin:0 0 8px}
+.banner-admin p{font-size:12px;color:var(--sub);line-height:1.5;margin:0 0 12px}
+.banner-admin input{display:block;width:100%;font-size:12px;max-width:100%}
+.banner-buttons{margin-top:12px}
+#bannerMessage{margin-top:10px;overflow-wrap:anywhere}
+.toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:16px}.toolbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+.list{display:grid;grid-template-columns:repeat(5,minmax(170px,1fr));gap:24px}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:22px;
+  padding:24px 16px 22px;min-height:250px;box-shadow:var(--shadow);
+  cursor:pointer;transition:.18s;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center
+}
+.card:hover{transform:translateY(-3px);border-color:var(--accent)}
+.upbo-icon{
+  width:100px;height:100px;border-radius:50%;display:grid;place-items:center;
+  background:var(--soft);border:3px solid var(--line);font-size:40px;
+  margin-bottom:16px;overflow:hidden
+}
+.upbo-icon img{width:100%;height:100%;object-fit:cover}
+.num{font-size:11px;color:var(--sub);letter-spacing:1px;margin-bottom:4px}
+.name{font-size:20px;font-weight:800;margin:3px 0 14px;word-break:keep-all}
+.upbo-count{
+  margin-top:auto;padding:8px 16px;border-radius:999px;
+  background:#e0f3ff;color:#398ec5;font-size:15px;font-weight:800
+}
+body.dark .upbo-count{background:#244b68;color:#a6ddfa}
+.desc{display:none}.meta{display:none}.badge{display:none}
+@media(max-width:1000px){.list{grid-template-columns:repeat(4,minmax(150px,1fr))}}
+@media(max-width:760px){.list{grid-template-columns:repeat(3,minmax(130px,1fr));gap:14px}.card{min-height:210px;padding:18px 10px}.upbo-icon{width:78px;height:78px;font-size:32px}.name{font-size:17px}}
+@media(max-width:480px){.list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--sub);background:var(--panel);border:1px dashed var(--line);border-radius:18px}
+footer{text-align:center;color:var(--sub);font-size:11px;margin-top:40px}
+.overlay{position:fixed;inset:0;background:rgba(5,10,20,.52);opacity:0;pointer-events:none;transition:.2s;z-index:50}.overlay.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;right:0;top:0;width:min(430px,100%);height:100vh;background:var(--panel);border-left:1px solid var(--line);z-index:60;transform:translateX(105%);transition:.25s;padding:22px;overflow:auto}.drawer.show{transform:translateX(0)}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.drawer h2{font-size:20px;margin:0}.close{font-size:22px;border:0;background:transparent;color:var(--text);cursor:pointer}
+.field{margin:12px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}.field textarea{min-height:100px;resize:vertical}
+.form-actions{display:flex;gap:8px;margin-top:15px}.primary{background:var(--accent);border-color:var(--accent);color:white}.danger{color:#fff;background:var(--danger);border-color:var(--danger)}
+.admin-list{margin-top:25px;border-top:1px solid var(--line);padding-top:18px}.admin-item{display:flex;gap:9px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.grow{flex:1;min-width:0}.admin-item b{font-size:13px}.small{padding:7px 9px;font-size:11px}
+.modal{position:fixed;inset:0;display:grid;place-items:center;padding:18px;z-index:70;opacity:0;pointer-events:none;transition:.2s}.modal.show{opacity:1;pointer-events:auto}.modal-box{width:min(520px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow);position:relative}.modal-box h2{margin:0 0 10px}.modal-box p{color:var(--sub);line-height:1.7;font-size:14px}.modal-close{position:absolute;right:15px;top:12px}
+@media(max-width:600px){.wrap{padding-top:12px}.hero h1{font-size:19px}.hero #adminBtn{padding:9px 11px;font-size:12px}.toolbar{align-items:flex-start;flex-direction:column}.toolbar-right{width:100%;justify-content:flex-end}.toolbar-right #countText{margin-right:auto}.list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{min-height:190px}.banner-area img{aspect-ratio:2320 / 338;max-height:none}}
+ .fox-fallback{display:grid;place-items:center;width:100%;height:100%;color:#609fc6}
+ .fox-outline{width:60%;height:60%;max-width:36px;max-height:36px}
+.stats-summary{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:0 0 20px;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--sub);font-size:14px}.stats-summary strong{color:var(--text);font-weight:800;font-size:17px}.stats-separator{opacity:.45}@media(max-width:480px){.stats-summary{gap:8px;font-size:12px;padding:12px}.stats-summary strong{font-size:15px}}
+.stats-summary{justify-content:space-between;gap:14px 22px}
+.stats-numbers{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.stats-search{margin-left:auto;flex:0 1 300px;min-width:190px}
+.stats-search input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:#fff;color:var(--text);font:inherit;outline:none}
+.stats-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(98,180,232,.15)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:620px){.stats-summary{align-items:stretch}.stats-search{flex:1 1 100%;min-width:0;margin-left:0}}
+</style>
+
+<style>
+/* 시청자별 가로형 룰렛 목록 */
+.wrap{max-width:1320px}
+.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{display:grid;grid-template-columns:minmax(140px,38%) minmax(0,1fr);align-items:stretch;gap:0;text-align:left;min-height:100px;padding:0;border-radius:17px;overflow:hidden;cursor:default}
+.card:hover{transform:none}
+.viewer-info{display:flex;align-items:center;gap:9px;padding:14px 12px;background:#f3faff;border-right:1px solid var(--line);min-width:0}
+.viewer-info .upbo-icon{width:44px;height:44px;min-width:44px;margin:0;border-width:2px;font-size:24px}
+.viewer-identity{min-width:0}
+.viewer-identity .name{font-size:17px;margin:0 0 5px;overflow-wrap:anywhere}
+.viewer-id{font-size:12px;color:var(--sub);overflow-wrap:anywhere}
+.viewer-prizes{padding:12px 13px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-width:0}
+.prize-tag{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border-radius:12px;background:var(--soft);border:1px solid var(--line);color:var(--text);font-size:13px;max-width:100%;cursor:default}
+.prize-tag:hover{border-color:var(--line);background:var(--soft)}
+.prize-label{font-weight:700;overflow-wrap:anywhere}
+.prize-qty{white-space:nowrap;color:#3288bd;font-weight:800}
+.viewer-total{font-size:11px;color:var(--sub);margin-left:auto;white-space:nowrap}
+@media(max-width:850px){
+ .list{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+ .list{display:grid;grid-template-columns:1fr;gap:10px}
+ .card{grid-template-columns:1fr;min-height:0}
+ .viewer-info{padding:12px 15px;border-right:0;border-bottom:1px solid var(--line)}
+ .viewer-info .upbo-icon{width:42px;height:42px;min-width:42px;font-size:20px}
+ .viewer-identity .name{font-size:15px}
+ .viewer-prizes{padding:12px 14px}
+ .prize-tag{font-size:12px;padding:8px 10px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <h1>챠릴 룰렛 현황</h1>
+    <button class="btn primary" id="adminBtn" type="button">관리자 편집</button>
+
+  </section>
+  <section class="banner-area" id="bannerArea" hidden aria-label="관리자 등록 이미지">
+    <img id="bannerImage" alt="챠릴 룰렛 현황 안내 이미지">
+  </section>
+  <section class="stats-summary" aria-label="등록 현황 및 검색"><div class="stats-numbers"><span>등록된 시청자 <strong id="viewerCount">0명</strong></span><span class="stats-separator">·</span><span>총 룰렛 <strong id="rouletteCount">0개</strong></span></div><div class="stats-search"><label class="sr-only" for="viewerSearch">시청자 닉네임 또는 아이디 검색</label><input id="viewerSearch" type="search" placeholder="닉네임 또는 아이디 검색" autocomplete="off" aria-label="닉네임 또는 아이디 검색"></div></section>
+  <section class="list" id="list"></section>
+  
+</main>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head"><h2>시청자별 업보 관리</h2><button class="close" id="closeDrawer">×</button></div>
+  <div id="loginBox">
+    <div class="field"><label>관리자 비밀번호</label><input id="password" type="password" placeholder="비밀번호 입력"></div>
+    <button class="btn primary" id="loginBtn">관리자 로그인</button>
+
+  </div>
+  <div id="adminBox" style="display:none">
+    <section class="banner-admin">
+      <h3>상단 사진 관리</h3>
+      <p>제목 설명과 상태 필터 사이에 표시할 사진을 등록할 수 있어요.</p>
+      <input id="bannerUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif" aria-label="상단 사진 업로드">
+      <div class="banner-buttons">
+        <button class="btn danger" id="bannerRemove" type="button">사진 삭제</button>
+      </div>
+      <p id="bannerMessage" role="status">사진은 2320 × 338 비율로 자동 맞춤되며 모든 방문자에게 표시됩니다.</p>
+    </section>
+    <section class="banner-admin">
+      <h3>닉네임 앞 고정 이미지 관리</h3>
+      <p>등록한 이미지 하나를 모든 시청자 닉네임 왼쪽에 동일하게 표시합니다. 사진이 없으면 기존 구름 아이콘이 표시됩니다.</p>
+      <input id="viewerIconUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif" aria-label="공통 닉네임 이미지 업로드">
+      <div class="banner-buttons"><button class="btn danger" id="viewerIconRemove" type="button">공통 이미지 삭제</button></div>
+      <p id="viewerIconMessage" role="status"></p>
+    </section>
+    <h3 class="admin-section-title">시청자별 룰렛 상품 · 횟수 관리</h3>
+    <p class="admin-help">시청자 닉네임과 아이디를 입력하고 상품과 횟수를 등록하세요. 같은 시청자의 같은 상품명은 자동 합산되어 한 번만 표시됩니다.</p>
+    <form id="form">
+      <div class="field"><label>닉네임</label><input id="name" required placeholder="시청자 닉네임을 입력하세요"></div>
+      <div class="field"><label>시청자 아이디 (선택)</label><input id="viewerId" placeholder="예: viewer123"></div>
+      <input id="image" type="hidden">
+      <div class="field"><label>룰렛 상품명 / 업보 내용 (예: 노래*3, 춤*2, 애교)</label><textarea id="desc" placeholder="업보 내용을 입력하세요. 예: 노래 부르기"></textarea></div>
+      <div class="field"><label>업보 횟수 (단일 상품에 적용, 쉼표·별표 입력 시 자동 계산)</label><input id="count" type="number" min="0" value="1" placeholder="예: 1"></div>
+      <div class="form-actions">
+        <button class="btn primary" id="saveBtn" type="submit">룰렛 등록</button>
+        <button class="btn" id="cancelBtn" type="button">취소</button>
+      </div>
+    </form>
+    <div style="margin-top:18px;padding:12px;border-radius:12px;background:var(--soft);font-size:11px;color:var(--sub);line-height:1.6">
+  닉네임 앞 이미지는 위의 공통 이미지 관리에서 한 번 등록합니다.<br>
+  나중에 SOOP 연동 시 이 부분만 자동 연동하고 업보 내용·횟수는 계속 관리자모드에서 직접 관리할 수 있습니다.
+</div>
+<div class="admin-list">
+      <div style="font-weight:800;font-size:14px;margin-bottom:8px">등록된 업보</div>
+      <div id="adminList"></div>
+    </div>
+  </div>
+</aside>
+
+<div class="modal" id="modal"><div class="modal-box">
+  <button class="icon-btn modal-close" id="closeModal">×</button>
+  <div class="num" id="mNum"></div><h2 id="mName"></h2>
+  <span class="badge" id="mStatus"></span>
+  <div style="font-size:12px;font-weight:800;margin-top:16px;color:var(--sub)">업보 내용</div><p id="mDesc"></p>
+  <div class="meta"><span id="mDate"></span><span>SKY - DAY</span></div>
+</div></div>
+
+<script src="/app.js" defer></script>
+</body>
+</html>

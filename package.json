@@ -1,0 +1,1 @@
+{"name":"charil-roulette-fullstack","version":"1.0.0","private":true,"description":"챠릴 룰렛 현황 - PostgreSQL 관리자 버전","scripts":{"start":"node server.js","dev":"node --watch server.js","check":"node --check server.js && node --check public/app.js"},"engines":{"node":">=20"},"dependencies":{"dotenv":"^16.4.7","express":"^4.21.2","pg":"^8.13.1"}}
