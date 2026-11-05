@@ -536,3 +536,59 @@ $('#viewerSearch').addEventListener('input',render);
   console.error(e);
  }
 })();
+
+/* =========================================
+   관리자 로그아웃 기능
+========================================= */
+
+$('#logoutBtn').onclick = async () => {
+
+  if (!confirm('관리자 모드에서 로그아웃하시겠습니까?')) {
+    return;
+  }
+
+  const btn = $('#logoutBtn');
+
+  btn.disabled = true;
+  btn.textContent = '로그아웃 중...';
+
+  try {
+
+    // 서버에 로그아웃 요청
+    await api('/api/logout', {
+      method: 'POST'
+    });
+
+    // 관리자 상태 해제
+    isAdmin = false;
+    editingId = null;
+
+    // 로그인 화면으로 전환
+    $('#adminBox').style.display = 'none';
+    $('#loginBox').style.display = 'block';
+
+    // 비밀번호 및 입력폼 초기화
+    $('#password').value = '';
+    $('#form').reset();
+    $('#saveBtn').textContent = '룰렛 등록';
+
+    // 관리자 전용 목록 비우기
+    $('#adminList').replaceChildren();
+
+    // 일반 화면 다시 불러오기
+    await reload();
+
+    alert('관리자 로그아웃이 완료되었습니다.');
+
+  } catch (err) {
+
+    alert('로그아웃 처리 중 오류: ' + err.message);
+
+  } finally {
+
+    btn.disabled = false;
+    btn.textContent = '로그아웃';
+
+  }
+};
+
