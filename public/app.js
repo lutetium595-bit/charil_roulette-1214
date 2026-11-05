@@ -8,11 +8,95 @@ async function api(url,opts={}){
 async function reload(){const data=await api('/api/public');items=data.items;settings=data.settings;refreshBanner();render();updateViewerIconControls()}
 function refreshBanner(){const src=settings.banner;$('#bannerArea').hidden=!src;if(src)$('#bannerImage').src=src;else $('#bannerImage').removeAttribute('src')}
 function updateViewerIconControls(){$('#viewerIconRemove').disabled=!settings.viewerIcon;$('#bannerRemove').disabled=!settings.banner}
-async function fileToDataUrl(file,w,h,quality=.8){
- if(file.size>8*1024*1024)throw Error('8MB 이하의 이미지만 등록할 수 있습니다.');
- const url=URL.createObjectURL(file);
- try{const img=new Image();img.src=url;await img.decode();const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');const scale=Math.max(w/img.naturalWidth,h/img.naturalHeight);const sw=img.naturalWidth*scale,sh=img.naturalHeight*scale;ctx.drawImage(img,(w-sw)/2,(h-sh)/2,sw,sh);return canvas.toDataURL('image/jpeg',quality)}finally{URL.revokeObjectURL(url)}
+
+async function fileToDataUrl(file, w, h, quality = 0.8) {
+  if (!file) {
+    throw new Error("이미지 파일을 선택해 주세요.");
+  }
+
+  const supportedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+  if (!supportedTypes.includes(file.type)) {
+    throw new Error(
+      "JPG, PNG, WebP 형식의 이미지만 업로드할 수 있습니다."
+    );
+  }
+
+  if (file.size > 8 * 1024 * 1024) {
+    throw new Error(
+      "8MB 이하의 이미지만 등록할 수 있습니다."
+    );
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+
+  try {
+    const img = new Image();
+
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(
+        new Error(
+          "이미지를 읽을 수 없습니다. JPG 또는 PNG로 다시 저장해 주세요."
+        )
+      );
+
+      img.src = objectUrl;
+    });
+
+    if (!img.naturalWidth || !img.naturalHeight) {
+      throw new Error(
+        "이미지 크기를 확인할 수 없습니다."
+      );
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      throw new Error(
+        "브라우저에서 이미지 변환을 지원하지 않습니다."
+      );
+    }
+
+    const scale = Math.max(
+      w / img.naturalWidth,
+      h / img.naturalHeight
+    );
+
+    const drawWidth = img.naturalWidth * scale;
+    const drawHeight = img.naturalHeight * scale;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.drawImage(
+      img,
+      (w - drawWidth) / 2,
+      (h - drawHeight) / 2,
+      drawWidth,
+      drawHeight
+    );
+
+    try {
+      return canvas.toDataURL("image/jpeg", quality);
+    } catch {
+      throw new Error(
+        "이미지를 JPG 형식으로 변환하지 못했습니다."
+      );
+    }
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
+
 async function setImage(kind,value){await api('/api/settings/'+kind,{method:'PUT',body:JSON.stringify({value})});await reload()}
 $('#bannerUpload').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{await setImage('banner',await fileToDataUrl(f,1160,169));$('#bannerMessage').textContent='사진이 모든 방문자에게 적용되었습니다.'}catch(err){alert(err.message)}e.target.value=''};
 $('#viewerIconUpload').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{await setImage('viewerIcon',await fileToDataUrl(f,160,160));$('#viewerIconMessage').textContent='공통 이미지가 저장되었습니다.'}catch(err){alert(err.message)}e.target.value=''};
