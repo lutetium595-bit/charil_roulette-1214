@@ -108,8 +108,49 @@ footer{text-align:center;color:var(--sub);font-size:11px;margin-top:40px}
  .viewer-prizes{padding:12px 14px}
  .prize-tag{font-size:12px;padding:8px 10px}
 }
+
 </style>
+
+<style>
+/* 관리자 로그아웃 영역 */
+.admin-logout-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  margin-bottom: 18px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.admin-logout-area span {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-logout-area #logoutBtn {
+  min-height: 42px;
+  flex-shrink: 0;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+@media (max-width: 360px) {
+  .admin-logout-area {
+    flex-wrap: wrap;
+  }
+
+  .admin-logout-area #logoutBtn {
+    width: 100%;
+  }
+}
+</style>
+
 </head>
+
 <body>
 <main class="wrap">
   <section class="hero">
