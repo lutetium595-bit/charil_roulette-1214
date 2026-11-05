@@ -64,6 +64,27 @@ footer{text-align:center;color:var(--sub);font-size:11px;margin-top:40px}
 .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.drawer h2{font-size:20px;margin:0}.close{font-size:22px;border:0;background:transparent;color:var(--text);cursor:pointer}
 .field{margin:12px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}.field textarea{min-height:100px;resize:vertical}
 .form-actions{display:flex;gap:8px;margin-top:15px}.primary{background:var(--accent);border-color:var(--accent);color:white}.danger{color:#fff;background:var(--danger);border-color:var(--danger)}
+  
+<style>
+/* 관리자 모드의 지정된 버튼 3개만 색상 변경 */
+#logoutBtn,
+#bannerRemove,
+#viewerIconRemove {
+  background: #E58A9A;
+  border-color: #E58A9A;
+  color: #ffffff;
+}
+
+/* 마우스를 올렸을 때 */
+#logoutBtn:hover,
+#bannerRemove:hover,
+#viewerIconRemove:hover {
+  background: #D97889;
+  border-color: #D97889;
+  color: #ffffff;
+}
+</style>
+
 .admin-list{margin-top:25px;border-top:1px solid var(--line);padding-top:18px}.admin-item{display:flex;gap:9px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.grow{flex:1;min-width:0}.admin-item b{font-size:13px}.small{padding:7px 9px;font-size:11px}
 .modal{position:fixed;inset:0;display:grid;place-items:center;padding:18px;z-index:70;opacity:0;pointer-events:none;transition:.2s}.modal.show{opacity:1;pointer-events:auto}.modal-box{width:min(520px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow);position:relative}.modal-box h2{margin:0 0 10px}.modal-box p{color:var(--sub);line-height:1.7;font-size:14px}.modal-close{position:absolute;right:15px;top:12px}
 @media(max-width:600px){.wrap{padding-top:12px}.hero h1{font-size:19px}.hero #adminBtn{padding:9px 11px;font-size:12px}.toolbar{align-items:flex-start;flex-direction:column}.toolbar-right{width:100%;justify-content:flex-end}.toolbar-right #countText{margin-right:auto}.list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{min-height:190px}.banner-area img{aspect-ratio:2320 / 338;max-height:none}}
