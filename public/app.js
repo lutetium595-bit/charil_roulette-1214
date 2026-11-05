@@ -592,3 +592,33 @@ $('#logoutBtn').onclick = async () => {
   }
 };
 
+/* 관리자 로그아웃 */
+document.getElementById('logoutBtn').addEventListener('click', async function () {
+  if (!confirm('관리자 모드에서 로그아웃하시겠습니까?')) return;
+
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = '로그아웃 중...';
+
+  try {
+    const response = await fetch('/api/logout', {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || '로그아웃 실패');
+    }
+
+    // 서버 세션 종료 후 화면 새로고침
+    window.location.reload();
+
+  } catch (error) {
+    alert('로그아웃 오류: ' + error.message);
+    btn.disabled = false;
+    btn.textContent = '로그아웃';
+  }
+});
+
