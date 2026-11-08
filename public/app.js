@@ -1,6 +1,7 @@
 
 const $=s=>document.querySelector(s);
 let items=[], settings={banner:null,viewerIcon:null},isAdmin=false,editingId=null;
+let progressRecords=[],privateNotes=[],selectedPrize=null;
 
 async function api(url,opts={}){
  const res=await fetch(url,{
@@ -25,6 +26,8 @@ async function reload(){
  const data=await api('/api/public');
  items=data.items;
  settings=data.settings;
+ progressRecords=data.progress||[];
+ if(isAdmin){try{privateNotes=(await api('/api/prizes/private')).notes||[]}catch(e){console.error(e);privateNotes=[]}}else privateNotes=[];
  refreshBanner();
  render();
  updateViewerIconControls();
@@ -270,6 +273,28 @@ function aggregatePrizes(records){
  return [...merged.values()];
 }
 
+function normalizedPrizeKey(s){return String(s||'').trim().replace(/\s+/g,' ').toLocaleLowerCase()}
+function progressFor(viewerKey,prizeKey){return progressRecords.find(x=>x.viewerKey===viewerKey&&x.prizeKey===prizeKey)||{completed:0,publicNote:''}}
+function privateFor(viewerKey,prizeKey){return privateNotes.find(x=>x.viewerKey===viewerKey&&x.prizeKey===prizeKey)?.privateNote||''}
+function openPrize(viewerKey,prizeKey){
+ const g=lastGroups.get(viewerKey);if(!g)return;
+ const p=g.merged.find(x=>normalizedPrizeKey(x.label)===prizeKey);if(!p)return;
+ const state=progressFor(viewerKey,prizeKey),done=Math.min(p.qty,Number(state.completed)||0),finished=p.qty>0&&done>=p.qty;
+ selectedPrize={viewerKey,prizeKey,qty:p.qty};
+ $('#prizeDialogViewer').textContent=g.name+(g.viewerId?' · @'+g.viewerId:'');
+ $('#prizeDialogTitle').textContent=p.label;
+ $('#prizeDialogCount').textContent=`${done} / ${p.qty}개 완료`;
+ $('#prizeDialogStatus').textContent=finished?'완료':'진행중';
+ $('#prizeDialogStatus').classList.toggle('done',finished);
+ $('#prizeDialogFill').style.width=(p.qty?done/p.qty*100:0)+'%';
+ $('#prizeDialogFill').classList.toggle('done',finished);
+ $('#prizeDialogNote').textContent=state.publicNote||'등록된 메모가 없습니다.';
+ $('#prizeEdit').hidden=!isAdmin;
+ if(isAdmin){$('#prizeCompleted').max=String(p.qty);$('#prizeCompleted').value=String(done);$('#prizePublicNote').value=state.publicNote||'';$('#prizePrivateNote').value=privateFor(viewerKey,prizeKey)}
+ $('#prizeDialog').classList.add('show');
+ $('#prizeDialogClose').focus();
+}
+let lastGroups=new Map();
 function render(){
  const view=items;
  const groups=new Map();
@@ -282,6 +307,7 @@ function render(){
 
   if(!groups.has(key)){
    groups.set(key,{
+    key,
     name:x.name,
     viewerId:x.viewerId||'',
     image:x.image||'',
@@ -300,6 +326,7 @@ function render(){
  for(const g of groups.values()){
   g.merged=aggregatePrizes(g.prizes);
  }
+ lastGroups=groups;
 
  $('#viewerCount').textContent=
   groups.size.toLocaleString('ko-KR')+'명';
@@ -360,12 +387,15 @@ function render(){
     </div>
    </div>
    <div class="viewer-prizes">
-    ${g.merged.map(p=>`
-     <span class="prize-tag">
+    ${g.merged.map(p=>{
+     const pk=normalizedPrizeKey(p.label),state=progressFor(g.key,pk);
+     const finished=p.qty>0&&Number(state.completed)>=p.qty;
+     return `
+     <button type="button" class="prize-tag${finished?' prize-complete':''}" data-viewer="${esc(g.key)}" data-prize="${esc(pk)}" aria-label="${esc(p.label)} 상세 진행 현황 보기">
       <span class="prize-label">${esc(p.label)}</span>
       <span class="prize-qty">× ${p.qty}개</span>
-     </span>
-    `).join('')}
+     </button>
+    `}).join('')}
     <span class="viewer-total">
      총 ${g.merged.reduce((sum,p)=>sum+p.qty,0)}개
     </span>
@@ -375,6 +405,7 @@ function render(){
     ${query?'검색 결과가 없습니다.':'등록된 룰렛 상품이 없습니다.'}
    </div>`;
 
+ $('#list').querySelectorAll('.prize-tag').forEach(b=>b.addEventListener('click',()=>openPrize(b.dataset.viewer,b.dataset.prize)));
  if(isAdmin)renderAdmin();
 }
 
@@ -592,33 +623,18 @@ $('#logoutBtn').onclick = async () => {
   }
 };
 
-/* 관리자 로그아웃 */
-document.getElementById('logoutBtn').addEventListener('click', async function () {
-  if (!confirm('관리자 모드에서 로그아웃하시겠습니까?')) return;
-
-  const btn = this;
-  btn.disabled = true;
-  btn.textContent = '로그아웃 중...';
-
-  try {
-    const response = await fetch('/api/logout', {
-      method: 'POST',
-      credentials: 'same-origin'
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error || '로그아웃 실패');
-    }
-
-    // 서버 세션 종료 후 화면 새로고침
-    window.location.reload();
-
-  } catch (error) {
-    alert('로그아웃 오류: ' + error.message);
-    btn.disabled = false;
-    btn.textContent = '로그아웃';
-  }
-});
-
+// 상품 클릭 팝업 및 관리자 완료 수량/메모 저장
+function closePrizeDialog(){ $('#prizeDialog').classList.remove('show');selectedPrize=null; }
+$('#prizeDialogClose').onclick=closePrizeDialog;
+$('#prizeDialog').addEventListener('click',e=>{if(e.target===$('#prizeDialog'))closePrizeDialog()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#prizeDialog').classList.contains('show'))closePrizeDialog()});
+$('#prizeEdit').onsubmit=async e=>{
+ e.preventDefault();if(!isAdmin||!selectedPrize)return;
+ const {viewerKey,prizeKey,qty}=selectedPrize,completed=Number($('#prizeCompleted').value);
+ if(!Number.isSafeInteger(completed)||completed<0||completed>qty){alert('완료 수량은 0부터 전체 수량 사이여야 합니다.');return}
+ const btn=e.submitter;if(btn)btn.disabled=true;
+ try{
+  await api('/api/prizes/progress',{method:'PUT',body:JSON.stringify({viewerKey,prizeKey,completed,publicNote:$('#prizePublicNote').value,privateNote:$('#prizePrivateNote').value})});
+  await reload();openPrize(viewerKey,prizeKey);alert('진행 현황이 저장되었습니다.');
+ }catch(err){alert(err.message)}finally{if(btn)btn.disabled=false}
+};

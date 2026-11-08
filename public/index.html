@@ -523,6 +523,29 @@ footer{text-align:center;color:var(--sub);font-size:11px;margin-top:40px}
 }
 </style>
 
+<style>
+/* 클릭형 상품 상세 팝업: 기존 카드 크기 유지 */
+.prize-tag{cursor:pointer;font-family:inherit;text-align:left}
+.prize-tag:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.prize-tag.prize-complete{background:#e4f7ed;border-color:#a9e4c3;color:#22794f}
+.prize-tag.prize-complete .prize-qty{color:#22794f}
+.prize-dialog{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,10,20,.55)}
+.prize-dialog.show{display:flex}
+.prize-dialog-card{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:24px;width:min(480px,100%);max-height:90vh;overflow:auto}
+.prize-dialog-head{display:flex;align-items:start;justify-content:space-between;gap:12px}
+.prize-dialog-head h2{margin:4px 0 0;font-size:21px;overflow-wrap:anywhere}
+.prize-status{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--soft);color:#3288bd;font-size:12px;font-weight:800}
+.prize-status.done{background:#e4f7ed;color:#22794f}
+.prize-track{height:10px;border-radius:99px;background:var(--line);overflow:hidden;margin:10px 0 18px}
+.prize-fill{height:100%;background:#62b4e8;transition:width .2s}
+.prize-fill.done{background:#32b775}
+.prize-note{background:var(--soft);border-radius:12px;padding:13px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.6}
+.prize-edit{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+.prize-edit[hidden]{display:none}
+.prize-edit label{display:block;font-size:12px;font-weight:700;margin:12px 0 5px}
+.prize-edit input,.prize-edit textarea{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text);padding:10px;font:inherit}
+.prize-edit textarea{min-height:65px;resize:vertical}
+</style>
 </head>
 <body>
 
@@ -654,6 +677,27 @@ footer{text-align:center;color:var(--sub);font-size:11px;margin-top:40px}
   </div>
 </div>
 
+<div class="prize-dialog" id="prizeDialog" role="dialog" aria-modal="true" aria-labelledby="prizeDialogTitle">
+ <div class="prize-dialog-card">
+  <div class="prize-dialog-head">
+   <div><div id="prizeDialogViewer" style="color:var(--sub);font-size:12px"></div><h2 id="prizeDialogTitle"></h2></div>
+   <button class="icon-btn" id="prizeDialogClose" type="button" aria-label="닫기">×</button>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px">
+   <strong id="prizeDialogCount"></strong><span class="prize-status" id="prizeDialogStatus"></span>
+  </div>
+  <div class="prize-track"><div class="prize-fill" id="prizeDialogFill"></div></div>
+  <div style="font-size:12px;font-weight:700;margin-bottom:7px">공개 메모</div>
+  <div class="prize-note" id="prizeDialogNote"></div>
+  <form class="prize-edit" id="prizeEdit" hidden>
+   <strong style="font-size:13px">관리자 수정</strong>
+   <label for="prizeCompleted">완료 수량</label><input type="number" id="prizeCompleted" min="0" required>
+   <label for="prizePublicNote">공개 메모 (모든 시청자에게 표시)</label><textarea id="prizePublicNote" maxlength="3000"></textarea>
+   <label for="prizePrivateNote">관리자 전용 메모 (시청자에게 비공개)</label><textarea id="prizePrivateNote" maxlength="3000"></textarea>
+   <button class="btn primary" style="margin-top:12px" type="submit">진행 현황 저장</button>
+  </form>
+ </div>
+</div>
 <script src="/app.js" defer></script>
 </body>
 </html>
