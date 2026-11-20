@@ -295,6 +295,7 @@ function openPrize(viewerKey,prizeKey){
  $('#prizeDialogClose').focus();
 }
 let lastGroups=new Map();
+let currentProgressFilter="progress";
 function render(){
  const view=items;
  const groups=new Map();
@@ -346,7 +347,15 @@ function render(){
   !query||
   String(g.name||'').toLocaleLowerCase().includes(query)||
   String(g.viewerId||'').toLocaleLowerCase().includes(query)
- );
+ ).map(g=>{
+  const visiblePrizes=g.merged.filter(p=>{
+   if(currentProgressFilter==='all')return true;
+   const state=progressFor(g.key,normalizedPrizeKey(p.label));
+   const finished=p.qty>0&&Number(state.completed)>=p.qty;
+   return currentProgressFilter==='done'?finished:!finished;
+  });
+  return {...g,visiblePrizes};
+ }).filter(g=>g.visiblePrizes.length>0);
 
  $('#list').innerHTML=matched.length
   ?matched.map(g=>`<article class="card">
@@ -387,7 +396,7 @@ function render(){
     </div>
    </div>
    <div class="viewer-prizes">
-    ${g.merged.map(p=>{
+    ${g.visiblePrizes.map(p=>{
      const pk=normalizedPrizeKey(p.label),state=progressFor(g.key,pk);
      const finished=p.qty>0&&Number(state.completed)>=p.qty;
      return `
@@ -397,12 +406,12 @@ function render(){
      </button>
     `}).join('')}
     <span class="viewer-total">
-     총 ${g.merged.reduce((sum,p)=>sum+p.qty,0)}개
+     총 ${g.visiblePrizes.reduce((sum,p)=>sum+p.qty,0)}개
     </span>
    </div>
   </article>`).join('')
   :`<div class="empty">
-    ${query?'검색 결과가 없습니다.':'등록된 룰렛 상품이 없습니다.'}
+    ${query?'검색 결과가 없습니다.':currentProgressFilter==='done'?'완료된 룰렛 상품이 없습니다.':currentProgressFilter==='progress'?'진행중인 룰렛 상품이 없습니다.':'등록된 룰렛 상품이 없습니다.'}
    </div>`;
 
  $('#list').querySelectorAll('.prize-tag').forEach(b=>b.addEventListener('click',()=>openPrize(b.dataset.viewer,b.dataset.prize)));
@@ -555,6 +564,17 @@ $('#modal').onclick=e=>{
 };
 
 $('#viewerSearch').addEventListener('input',render);
+document.querySelectorAll('.progress-tab').forEach(button=>{
+ button.addEventListener('click',()=>{
+  currentProgressFilter=button.dataset.filter;
+  document.querySelectorAll('.progress-tab').forEach(tab=>{
+   const active=tab===button;
+   tab.classList.toggle('active',active);
+   tab.setAttribute('aria-pressed',String(active));
+  });
+  render();
+ });
+});
 
 (async()=>{
  try{

@@ -380,6 +380,14 @@ footer{text-align:center;color:var(--sub);font-size:11px;margin-top:40px}
   .stats-summary{align-items:stretch}
   .stats-search{flex:1 1 100%;min-width:0;margin-left:0}
 }
+
+/* 룰렛 진행 상태 탭: 기존 카드 레이아웃은 변경하지 않음 */
+.progress-tabs{display:flex;gap:8px;margin:14px 0 16px;flex-wrap:wrap}
+.progress-tab{font:inherit;font-weight:700;cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:9px 20px;background:var(--panel);color:var(--text);transition:background .15s,border-color .15s}
+.progress-tab:hover{background:var(--soft)}
+.progress-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.progress-tab:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media(max-width:480px){.progress-tabs{gap:6px}.progress-tab{flex:1;padding:9px 8px}}
 </style>
 
 <style>
@@ -571,6 +579,11 @@ footer{text-align:center;color:var(--sub);font-size:11px;margin-top:40px}
     </div>
   </section>
 
+  <nav class="progress-tabs" aria-label="룰렛 진행 상태 필터">
+    <button type="button" class="progress-tab" data-filter="all" aria-pressed="false">전체</button>
+    <button type="button" class="progress-tab active" data-filter="progress" aria-pressed="true">진행중</button>
+    <button type="button" class="progress-tab" data-filter="done" aria-pressed="false">완료</button>
+  </nav>
   <section class="list" id="list"></section>
 </main>
 
